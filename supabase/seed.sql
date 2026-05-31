@@ -1,0 +1,9 @@
+-- ╔══════════════════════════════════════════════════════════════╗
+-- ║  Casita es MULTI-HOGAR.                                        ║
+-- ║  Ya no hay datos globales de ejemplo.                          ║
+-- ║                                                                ║
+-- ║  Cada hogar nuevo se precarga automáticamente (recetas,        ║
+-- ║  tareas, items fijos y config) cuando alguien lo crea desde    ║
+-- ║  la app, vía la función seed_hogar() definida en               ║
+-- ║  migration.sql. No hace falta correr ningún seed a mano.       ║
+-- ╚══════════════════════════════════════════════════════════════╝

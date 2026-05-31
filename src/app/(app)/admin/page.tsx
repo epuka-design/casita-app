@@ -1,27 +1,27 @@
 import { PageHeader } from "@/components/PageHeader";
-
-// Doble defensa: el middleware ya bloquea no-admins, pero igual
-// confirmamos el rol acá por si se accede sin pasar por el matcher.
-import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { roleFromMetadata } from "@/lib/roles";
+import { requireRole } from "@/lib/auth";
+import { getHogar } from "@/lib/hogar";
+import { HogarForm } from "@/features/hogar/HogarForm";
+import { getItemsFijos } from "@/features/super/queries";
+import { ItemsFijos } from "@/features/super/ItemsFijos";
 
 export default async function AdminPage() {
-  const user = await currentUser();
-  const role = roleFromMetadata(
-    user?.publicMetadata as { rol?: unknown } | undefined
-  );
-  if (role !== "admin") redirect("/dashboard");
+  // Doble defensa: el middleware ya bloquea no-admins.
+  const user = await requireRole("admin");
+  const [hogar, fijos] = await Promise.all([
+    getHogar(user.hogar_id),
+    getItemsFijos(user.hogar_id),
+  ]);
 
   return (
-    <div>
-      <PageHeader
-        titulo="Administración"
-        subtitulo="Usuarios, roles y ajustes de la casa"
+    <div className="space-y-5">
+      <PageHeader titulo="Administración" subtitulo="Configuración de la casa" />
+      <HogarForm
+        adultos={hogar.adultos}
+        ninos={hogar.ninos}
+        factorNino={hogar.factorNino}
       />
-      <div className="carta text-tinta/50">
-        Panel de administración. Sólo visible para el rol admin.
-      </div>
+      <ItemsFijos items={fijos} />
     </div>
   );
 }

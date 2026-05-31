@@ -20,9 +20,11 @@ Vas a necesitar una cuenta (gratis) en cada uno:
 ## 1. Supabase (base de datos)
 
 1. Creá un proyecto en <https://supabase.com/dashboard>.
-2. Andá a **SQL Editor** y ejecutá, en este orden:
-   - El contenido de [`supabase/migration.sql`](./supabase/migration.sql) → crea tablas, índices y RLS.
-   - El contenido de [`supabase/seed.sql`](./supabase/seed.sql) → carga tareas, recetas, items fijos y la config del hogar (3 adultos + 2 niños).
+2. Andá a **SQL Editor**, pegá el contenido de
+   [`supabase/migration.sql`](./supabase/migration.sql) y ejecutalo.
+   Crea las tablas multi-hogar, índices, RLS y la función `seed_hogar()`.
+   > No hace falta correr ningún seed a mano: **cada hogar se precarga solo**
+   > (recetas, tareas, items fijos) cuando alguien lo crea desde la app.
 3. En **Project Settings → API**, copiá:
    - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
    - **anon public** → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -81,15 +83,15 @@ Vas a necesitar una cuenta (gratis) en cada uno:
 
 ---
 
-## 5. Después del primer deploy
+## 5. Después del primer deploy (multi-hogar)
 
 1. **Clerk — dominio de producción**: si usás la instancia de producción de Clerk, agregá el dominio de Vercel en Clerk (**Domains**). Con la instancia de desarrollo de Clerk, el dominio `*.vercel.app` ya funciona.
-2. **Asignar admin**: Clerk → **Users** → tu usuario → **Metadata → Public**:
-   ```json
-   { "rol": "admin" }
-   ```
-   Roles posibles: `admin` (Yali), `familia` (marido), `ayudante`. Sin rol asignado, por defecto es `familia`.
-3. Entrá a la URL, iniciá sesión y listo: vas a ver el **Dashboard del admin**.
+2. Entrá a la URL y **registrate**. La primera vez la app te lleva al **onboarding**:
+   - **Crear un hogar** → quedás **admin** automáticamente y se precargan los datos de ejemplo. Te muestra un **código de invitación** (ej. `CASA-7Q3X`).
+   - Tu familia entra al mismo link, se registra y elige **Unirme a un hogar** con ese código (entran como `familia`).
+3. ¡Listo! Como admin vas a ver el **Dashboard**.
+
+> Ya **no se asignan roles a mano en Clerk**: el que crea el hogar es admin; los demás se suman con el código. (El claim de sesión del paso 2.3 es lo que hace que el rol funcione en las rutas.)
 
 ---
 

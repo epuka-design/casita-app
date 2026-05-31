@@ -1,16 +1,21 @@
-import { PageHeader } from "@/components/PageHeader";
+import { requireHogar } from "@/lib/auth";
+import { getTareasDeHoy } from "@/features/tareas/queries";
+import { TareasHoy } from "@/features/tareas/TareasHoy";
 
-export default function TareasPage() {
+export default async function TareasPage() {
+  const user = await requireHogar();
+  const { fechaLabel, tareas } = await getTareasDeHoy(user.hogar_id);
+
   return (
     <div>
-      <PageHeader
-        titulo="Tareas"
-        subtitulo="El ritmo de la casa"
-        action={<button className="btn">Nueva tarea</button>}
-      />
-      <div className="carta text-tinta/50">
-        No hay tareas pendientes por hoy.
-      </div>
+      <header className="mb-8">
+        <p className="text-base text-tinta/50">{fechaLabel}</p>
+        <h1 className="mt-1 font-serif text-4xl font-medium text-tinta sm:text-5xl">
+          Mis tareas de hoy
+        </h1>
+      </header>
+
+      <TareasHoy tareas={tareas} />
     </div>
   );
 }

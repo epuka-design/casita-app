@@ -8,7 +8,14 @@ const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
 // Rutas restringidas por rol. La nav ya las oculta, pero el middleware
 // es la defensa real: deep-links / acceso directo por URL.
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
-const isRecetasRoute = createRouteMatcher(["/recetas(.*)"]);
+// El ayudante sólo puede entrar a estas rutas; cualquier otra lo
+// devuelve a "Mis tareas". Recetas en modo lectura.
+const isAyudanteAllowed = createRouteMatcher([
+  "/tareas(.*)",
+  "/menu(.*)",
+  "/recetas(.*)",
+  "/super(.*)",
+]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isPublicRoute(req)) return NextResponse.next();
@@ -26,13 +33,15 @@ export default clerkMiddleware(async (auth, req) => {
     (sessionClaims as { metadata?: { rol?: unknown } } | null)?.metadata
   );
 
-  // Admin: sólo rol admin.
-  if (isAdminRoute(req) && role !== "admin") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+  // Ayudante: encerrado en Mis tareas + Menú.
+  if (role === "ayudante") {
+    return isAyudanteAllowed(req)
+      ? NextResponse.next()
+      : NextResponse.redirect(new URL("/tareas", req.url));
   }
 
-  // Recetas: admin y familia (el ayudante no edita el recetario).
-  if (isRecetasRoute(req) && role === "ayudante") {
+  // Admin: sólo rol admin (familia y ayudante quedan fuera).
+  if (isAdminRoute(req) && role !== "admin") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 

@@ -19,12 +19,20 @@ export interface NavItem {
 // Navegación de la app. `roles` define quién ve cada sección.
 // - admin: todo
 // - familia: todo menos Admin
-// - ayudante: lo operativo (menú a cocinar, súper, tareas)
+// - ayudante: SOLO Mis tareas y Menú (lectura). Vista ultra simple.
+//
+// Orden pensado para que el ayudante vea primero "Mis tareas".
 export const NAV_ITEMS: NavItem[] = [
   {
     href: "/dashboard",
     label: "Inicio",
     icon: Home,
+    roles: ["admin", "familia"],
+  },
+  {
+    href: "/tareas",
+    label: "Mis tareas",
+    icon: CheckSquare,
     roles: ["admin", "familia", "ayudante"],
   },
   {
@@ -37,18 +45,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/recetas",
     label: "Recetas",
     icon: BookOpen,
-    roles: ["admin", "familia"],
+    roles: ["admin", "familia", "ayudante"],
   },
   {
     href: "/super",
     label: "Súper",
     icon: ShoppingCart,
-    roles: ["admin", "familia", "ayudante"],
-  },
-  {
-    href: "/tareas",
-    label: "Tareas",
-    icon: CheckSquare,
     roles: ["admin", "familia", "ayudante"],
   },
   {

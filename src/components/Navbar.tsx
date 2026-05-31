@@ -6,9 +6,18 @@ import { UserButton } from "@clerk/nextjs";
 import { ROLE_LABEL, type Role } from "@/lib/roles";
 import { navItemsForRole } from "./nav-config";
 
-export function Navbar({ role }: { role: Role }) {
+export function Navbar({
+  role,
+  menuPendiente = false,
+}: {
+  role: Role;
+  menuPendiente?: boolean;
+}) {
   const pathname = usePathname();
   const items = navItemsForRole(role);
+
+  // El ayudante (poca experiencia digital) usa una barra más grande.
+  const simple = role === "ayudante";
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
@@ -49,6 +58,12 @@ export function Navbar({ role }: { role: Role }) {
             >
               <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
               {item.label}
+              {item.href === "/menu" && menuPendiente && (
+                <span
+                  className="ml-auto h-2 w-2 rounded-full bg-terracota"
+                  aria-label="Menú pendiente"
+                />
+              )}
             </Link>
           );
         })}
@@ -63,11 +78,19 @@ export function Navbar({ role }: { role: Role }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10px] transition-colors ${
-                active ? "text-terracota" : "text-tinta/50"
-              }`}
+              className={`flex flex-1 flex-col items-center transition-colors ${
+                simple ? "gap-1 py-3.5 text-sm font-medium" : "gap-0.5 py-2.5 text-[10px]"
+              } ${active ? "text-terracota" : "text-tinta/50"}`}
             >
-              <Icon className="h-5 w-5" strokeWidth={active ? 2 : 1.6} />
+              <span className="relative">
+                <Icon
+                  className={simple ? "h-7 w-7" : "h-5 w-5"}
+                  strokeWidth={active ? 2 : 1.6}
+                />
+                {item.href === "/menu" && menuPendiente && (
+                  <span className="absolute -right-1 -top-0.5 h-2 w-2 rounded-full bg-terracota" />
+                )}
+              </span>
               {item.label}
             </Link>
           );
