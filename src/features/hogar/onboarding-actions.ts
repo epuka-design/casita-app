@@ -1,10 +1,9 @@
 "use server";
 
-import { currentUser, clerkClient } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { ensureUser } from "@/lib/auth";
-import type { Role } from "@/lib/roles";
+import { syncClerkMetadata } from "@/lib/clerk-sync";
 
 export type CrearResult =
   | { ok: true; codigo: string }
@@ -17,14 +16,6 @@ function genCodigo(): string {
   let s = "";
   for (let i = 0; i < 4; i++) s += abc[Math.floor(Math.random() * abc.length)];
   return `CASA-${s}`;
-}
-
-// Refleja rol + hogar en Clerk (para el gating del middleware).
-async function syncClerk(clerkId: string, rol: Role, hogarId: string) {
-  const cc = await clerkClient();
-  await cc.users.updateUserMetadata(clerkId, {
-    publicMetadata: { rol, hogar_id: hogarId },
-  });
 }
 
 // Crear un hogar nuevo: el usuario queda admin y se precargan los
@@ -69,7 +60,7 @@ export async function crearHogar(nombre: string): Promise<CrearResult> {
     .eq("id", user.id);
   if (upErr) return { ok: false, error: upErr.message };
 
-  await syncClerk(clerk.id, "admin", hogarId);
+  await syncClerkMetadata(clerk.id, "admin", hogarId);
   return { ok: true, codigo };
 }
 
@@ -96,6 +87,6 @@ export async function unirseHogar(codigo: string): Promise<UnirseResult> {
     .eq("id", user.id);
   if (upErr) return { ok: false, error: upErr.message };
 
-  await syncClerk(clerk.id, "familia", hogar.id as string);
+  await syncClerkMetadata(clerk.id, "familia", hogar.id as string);
   return { ok: true };
 }
