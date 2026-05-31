@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #faf8f5;
+  --foreground: #1a1a1a;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-crema text-tinta font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* Título de pantalla */
+  .titulo {
+    @apply font-serif text-3xl font-medium tracking-tight text-tinta;
+  }
+
+  .subtitulo {
+    @apply text-sm text-tinta/60;
+  }
+
+  /* Tarjeta base */
+  .carta {
+    @apply rounded-xl2 bg-blanco p-5 shadow-suave;
+  }
+
+  /* Botón primario terracota */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-terracota px-5 py-2.5
+           text-sm font-medium text-blanco transition-colors hover:bg-terracota-ink
+           focus:outline-none focus:ring-2 focus:ring-terracota/40 disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-tinta/10
+           bg-blanco px-5 py-2.5 text-sm font-medium text-tinta transition-colors
+           hover:bg-crema;
+  }
+}
