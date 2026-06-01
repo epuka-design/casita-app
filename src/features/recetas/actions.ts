@@ -23,7 +23,11 @@ export async function crearReceta(input: RecetaInput): Promise<ActionResult> {
   const { error } = await supabaseAdmin
     .from("recetas")
     .insert({ ...parsed.data, hogar_id: user.hogar_id });
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    if (error.code === "23505")
+      return { ok: false, error: "Ya tenés una receta con ese nombre." };
+    return { ok: false, error: error.message };
+  }
 
   revalidatePath("/recetas");
   redirect("/recetas");

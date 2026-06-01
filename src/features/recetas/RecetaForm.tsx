@@ -49,7 +49,10 @@ export function RecetaForm({ receta }: { receta?: RecetaRow }) {
       porciones,
       tiempo_min: tiempo === "" ? null : Number(tiempo),
       instrucciones,
-      ingredientes: ingredientes.filter((i) => i.nombre || i.cantidad),
+      // Sólo ingredientes completos; las filas a medio llenar se ignoran.
+      ingredientes: ingredientes.filter(
+        (i) => i.nombre.trim() && i.cantidad.trim()
+      ),
     };
     startTransition(async () => {
       const res = receta

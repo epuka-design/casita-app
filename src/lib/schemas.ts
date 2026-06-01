@@ -27,9 +27,8 @@ export const recetaSchema = z.object({
     .max(50),
   tiempo_min: tiempoMinSchema,
   instrucciones: z.string().trim().max(5000).default(""),
-  ingredientes: z
-    .array(ingredienteSchema)
-    .min(1, "Agregá al menos un ingrediente"),
+  // Opcional: se puede guardar una receta con solo nombre y categoría.
+  ingredientes: z.array(ingredienteSchema).optional().default([]),
 });
 
 export type RecetaInput = z.input<typeof recetaSchema>;
