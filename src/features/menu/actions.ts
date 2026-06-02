@@ -74,6 +74,56 @@ export async function setPlato(
   return { ok: true };
 }
 
+// Crea una comida nueva (por nombre) y la asigna al día/tipo, sin tener
+// que ir antes al Banco de Recetas. Reusa la receta si ya existe.
+export async function crearComidaYAsignar(
+  semana: string,
+  dia: string,
+  tipo: string,
+  nombre: string
+): Promise<MenuResult> {
+  const user = await requireRole("admin", "ayudante");
+
+  const estado = await getEstadoSemana(user.hogar_id, semana);
+  if (user.rol === "ayudante" && estado === "aprobado") {
+    return { ok: false, error: "El menú ya fue aprobado; no se puede editar." };
+  }
+
+  const nom = nombre.trim();
+  if (!nom) return { ok: false, error: "Escribí un nombre." };
+
+  let recetaId: string;
+  const { data: existente } = await supabaseAdmin
+    .from("recetas")
+    .select("id")
+    .eq("hogar_id", user.hogar_id)
+    .eq("nombre", nom)
+    .maybeSingle();
+  if (existente) {
+    recetaId = existente.id as string;
+  } else {
+    const { data, error } = await supabaseAdmin
+      .from("recetas")
+      .insert({ hogar_id: user.hogar_id, nombre: nom })
+      .select("id")
+      .single();
+    if (error) return { ok: false, error: error.message };
+    recetaId = data.id as string;
+  }
+
+  await asegurarSemana(user.hogar_id, semana, user.id);
+  const { error } = await supabaseAdmin
+    .from("menu_semanal")
+    .upsert(
+      { hogar_id: user.hogar_id, semana, dia, tipo, receta_id: recetaId },
+      { onConflict: "hogar_id,semana,dia,tipo" }
+    );
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/menu");
+  return { ok: true };
+}
+
 // Envía el menú a aprobación.
 export async function enviarAprobacion(semana: string): Promise<MenuResult> {
   const user = await requireRole("admin", "ayudante");

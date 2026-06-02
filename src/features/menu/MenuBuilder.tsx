@@ -15,6 +15,7 @@ import {
   aprobarMenu,
   reabrirMenu,
   sugerirMenuAction,
+  crearComidaYAsignar,
   type MenuResult,
 } from "./actions";
 
@@ -69,6 +70,13 @@ export function MenuBuilder({
 
   function quitar(dia: string, tipo: MenuTipo) {
     correr(() => setPlato(semana, dia, tipo, null));
+  }
+
+  function crearNueva(nombre: string) {
+    if (!picker) return;
+    const { dia, tipo } = picker;
+    setPicker(null);
+    correr(() => crearComidaYAsignar(semana, dia, tipo, nombre));
   }
 
   async function sugerir() {
@@ -212,6 +220,7 @@ export function MenuBuilder({
           titulo={`${MENU_TIPO_LABEL[picker.tipo]} · ${cap(picker.dia)}`}
           onPick={elegir}
           onClose={() => setPicker(null)}
+          onCrear={crearNueva}
         />
       )}
     </div>

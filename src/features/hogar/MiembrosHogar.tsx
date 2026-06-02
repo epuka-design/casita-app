@@ -52,16 +52,16 @@ export function MiembrosHogar({
         <p className="subtitulo mb-4">
           Compartilo para que se sumen a <strong>{hogarNombre}</strong>.
         </p>
-        <div className="flex items-center justify-between gap-3 rounded-xl2 bg-crema px-5 py-4">
-          <span className="font-serif text-2xl tracking-wide text-terracota">
+        <div className="rounded-xl2 bg-crema px-5 py-4">
+          <span className="block whitespace-nowrap text-center font-serif text-3xl tracking-wide text-terracota">
             {codigo}
           </span>
-          <div className="flex gap-2">
-            <button type="button" onClick={copiar} className="btn-ghost">
+          <div className="mt-4 flex gap-2">
+            <button type="button" onClick={copiar} className="btn-ghost flex-1">
               {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copiado ? "Copiado" : "Copiar"}
             </button>
-            <button type="button" onClick={compartir} className="btn">
+            <button type="button" onClick={compartir} className="btn flex-1">
               <Share2 className="h-4 w-4" /> Compartir
             </button>
           </div>

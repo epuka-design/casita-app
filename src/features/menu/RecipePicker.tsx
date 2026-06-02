@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Search } from "lucide-react";
+import { X, Search, Plus } from "lucide-react";
 import { CATEGORIAS_RECETA } from "@/lib/categorias";
 import type { RecetaMin } from "./ai";
 
@@ -12,11 +12,13 @@ export function RecipePicker({
   titulo,
   onPick,
   onClose,
+  onCrear,
 }: {
   recetas: RecetaMin[];
   titulo: string;
   onPick: (id: string) => void;
   onClose: () => void;
+  onCrear?: (nombre: string) => void;
 }) {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>(TODAS);
@@ -93,6 +95,18 @@ export function RecipePicker({
             ))
           )}
         </ul>
+
+        {onCrear && q.trim() && (
+          <div className="border-t border-tinta/5 px-5 py-3">
+            <button
+              type="button"
+              onClick={() => onCrear(q.trim())}
+              className="btn w-full"
+            >
+              <Plus className="h-4 w-4" /> Crear «{q.trim()}»
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
