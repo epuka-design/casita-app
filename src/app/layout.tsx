@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Fraunces, DM_Sans, Fredoka } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from "@clerk/localizations";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const fraunces = Fraunces({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-cormorant",
+  variable: "--font-fraunces",
   display: "swap",
 });
 
@@ -17,13 +17,21 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+// Fuente redondeada y friendly sólo para el logotipo.
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  variable: "--font-fredoka",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Casita",
   description: "Gestión del hogar, simple y a mano.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#faf8f5",
+  themeColor: "#f4efe3",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -40,15 +48,18 @@ export default function RootLayout({
       localization={esES as unknown as Record<string, unknown>}
       appearance={{
         variables: {
-          colorPrimary: "#c8602a",
-          colorText: "#1a1a1a",
-          colorBackground: "#ffffff",
+          colorPrimary: "#c5532b",
+          colorText: "#3a2e28",
+          colorBackground: "#fffdf7",
           borderRadius: "0.75rem",
           fontFamily: "var(--font-dm-sans)",
         },
       }}
     >
-      <html lang="es" className={`${cormorant.variable} ${dmSans.variable}`}>
+      <html
+        lang="es"
+        className={`${fraunces.variable} ${dmSans.variable} ${fredoka.variable}`}
+      >
         <body>{children}</body>
       </html>
     </ClerkProvider>

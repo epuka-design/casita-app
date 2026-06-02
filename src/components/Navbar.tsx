@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { ROLE_LABEL, type Role } from "@/lib/roles";
 import { navItemsForRole } from "./nav-config";
+import { Logo } from "./Logo";
 
 export function Navbar({
   role,
@@ -26,10 +27,8 @@ export function Navbar({
     <>
       {/* Header superior */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-tinta/5 bg-crema/80 px-5 py-3 backdrop-blur-md">
-        <Link href="/dashboard" className="flex items-baseline gap-2">
-          <span className="font-serif text-2xl font-semibold text-terracota">
-            Casita
-          </span>
+        <Link href="/dashboard" aria-label="Casita">
+          <Logo size={26} />
         </Link>
         <div className="flex items-center gap-3">
           <span className="hidden text-xs text-tinta/50 sm:inline">
