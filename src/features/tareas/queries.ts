@@ -10,8 +10,12 @@ export interface TareaHoy {
   completada: boolean;
 }
 
-// Tareas que corresponden hoy, con su estado de completada (para hoy).
-export async function getTareasDeHoy(hogarId: string): Promise<{
+// Tareas que corresponden hoy para un usuario: las asignadas a él más
+// las compartidas (sin responsable). Con su estado de completada.
+export async function getTareasDeHoy(
+  hogarId: string,
+  userId: string
+): Promise<{
   fechaLabel: string;
   tareas: TareaHoy[];
 }> {
@@ -21,6 +25,7 @@ export async function getTareasDeHoy(hogarId: string): Promise<{
     .from("tareas")
     .select("*")
     .eq("hogar_id", hogarId)
+    .or(`asignado_a.is.null,asignado_a.eq.${userId}`)
     .order("orden", { ascending: true });
   if (error) throw new Error(error.message);
 
@@ -52,4 +57,15 @@ export async function getTareasDeHoy(hogarId: string): Promise<{
       completada: completas.has(t.id),
     })),
   };
+}
+
+// Catálogo completo de tareas del hogar (para gestión del admin).
+export async function getTareasCatalogo(hogarId: string): Promise<TareaRow[]> {
+  const { data, error } = await supabaseAdmin
+    .from("tareas")
+    .select("*")
+    .eq("hogar_id", hogarId)
+    .order("orden", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as TareaRow[];
 }

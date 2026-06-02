@@ -73,9 +73,10 @@ export interface ListaSuperRow {
 export interface TareaRow {
   id: string;
   nombre: string;
-  ciclo: string | null; // diaria | semanal | mensual
+  ciclo: string | null; // diaria | quincenal | mensual
   categoria: string | null;
   orden: number;
+  asignado_a: string | null; // user.id responsable (null = compartida)
 }
 
 export interface TareaCompletadaRow {

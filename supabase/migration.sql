@@ -117,8 +117,12 @@ create table if not exists public.tareas (
   ciclo     text,             -- diaria | quincenal | mensual
   categoria text,             -- cocina | limpieza | niños | ropa
   orden     int not null default 0,
+  asignado_a uuid references public.users(id) on delete set null, -- responsable (null = compartida)
   unique (hogar_id, nombre)
 );
+-- Idempotente, para bases ya creadas:
+alter table public.tareas
+  add column if not exists asignado_a uuid references public.users(id) on delete set null;
 
 -- ── tareas_completadas ──────────────────────────────────────────
 create table if not exists public.tareas_completadas (

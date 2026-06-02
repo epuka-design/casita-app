@@ -85,7 +85,7 @@ export async function getAdminDashboard(): Promise<AdminDashboardData> {
   const [menu, recetas, tareasHoy, superSem, superMes] = await Promise.all([
     getMenuSemana(hogarId, semana),
     getRecetas(hogarId),
-    getTareasDeHoy(hogarId),
+    getTareasDeHoy(hogarId, dbUser.id),
     getLista(hogarId, "semanal", semana),
     getLista(hogarId, "mensual", inicioMes()),
   ]);
