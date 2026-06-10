@@ -93,11 +93,24 @@ export default async function RecetaDetallePage({
         </section>
       )}
 
-      {receta.ingredientes.length === 0 && pasos.length === 0 && (
-        <div className="carta mb-6 text-tinta/50">
-          Esta receta todavía no tiene el detalle cargado.
-        </div>
+      {receta.adaptacion_ninos && (
+        <section className="carta mb-6 border border-verde/20 bg-verde/5">
+          <h2 className="mb-2 font-serif text-xl text-verde">
+            Para los niños
+          </h2>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-tinta/80">
+            {receta.adaptacion_ninos}
+          </p>
+        </section>
       )}
+
+      {receta.ingredientes.length === 0 &&
+        pasos.length === 0 &&
+        !receta.adaptacion_ninos && (
+          <div className="carta mb-6 text-tinta/50">
+            Esta receta todavía no tiene el detalle cargado.
+          </div>
+        )}
 
       {esAdmin && <DeleteRecetaButton id={receta.id} />}
     </article>

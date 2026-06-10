@@ -34,7 +34,31 @@ export interface RecetaRow {
   instrucciones: string | null;
   porciones: number;
   tiempo_min: number | null;
+  adaptacion_ninos: string | null;
   created_at: string;
+}
+
+export interface PlanNutricionalRow {
+  id: string;
+  hogar_id: string;
+  fecha_carga: string;
+  semana: string;
+  datos_raw: unknown;
+  aprobado: boolean;
+  created_at: string;
+}
+
+export interface ListaSuperItemRow {
+  id: string;
+  hogar_id: string;
+  plan_id: string;
+  categoria: string;
+  nombre: string;
+  cantidad_total: string | null;
+  unidad: string | null;
+  detalle: string | null;
+  tildado: boolean;
+  orden: number;
 }
 
 export type EstadoMenu = "borrador" | "pendiente" | "aprobado";

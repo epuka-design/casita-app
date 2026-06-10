@@ -32,6 +32,20 @@ export const CATEGORIAS_SUPER_SEMANAL = [
 export type CategoriaMensual = (typeof CATEGORIAS_SUPER_MENSUAL)[number];
 export type CategoriaSemanal = (typeof CATEGORIAS_SUPER_SEMANAL)[number];
 
+// Lista del súper del Plan Nutricional (orden: carnes primero).
+export const CATEGORIAS_PLAN = [
+  "Carnes y proteínas",
+  "Verduras y hojas",
+  "Tomates y locotes",
+  "Cebollas y aromáticas",
+  "Frutas",
+  "Lácteos y huevos",
+  "Enlatados",
+  "Panadería",
+  "Despensa",
+] as const;
+export type CategoriaPlan = (typeof CATEGORIAS_PLAN)[number];
+
 export const TIPOS_COMIDA = [
   "desayuno",
   "almuerzo",

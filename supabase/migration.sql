@@ -135,6 +135,35 @@ create table if not exists public.tareas_completadas (
   unique (tarea_id, fecha)
 );
 
+-- ── Plan Nutricional ────────────────────────────────────────────
+create table if not exists public.planes_nutricionales (
+  id          uuid primary key default gen_random_uuid(),
+  hogar_id    uuid not null references public.hogares(id) on delete cascade,
+  fecha_carga timestamptz not null default now(),
+  semana      date not null,
+  datos_raw   jsonb not null default '{}'::jsonb,  -- plan extraído + adaptaciones
+  aprobado    boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+
+create table if not exists public.lista_super_items (
+  id             uuid primary key default gen_random_uuid(),
+  hogar_id       uuid not null references public.hogares(id) on delete cascade,
+  plan_id        uuid not null references public.planes_nutricionales(id) on delete cascade,
+  categoria      text not null,
+  nombre         text not null,
+  cantidad_total text,
+  unidad         text,
+  detalle        text,
+  tildado        boolean not null default false,
+  orden          int not null default 0,
+  created_at     timestamptz not null default now()
+);
+
+-- Adaptación para niños en cada receta (la usa la ayudante).
+alter table public.recetas
+  add column if not exists adaptacion_ninos text;
+
 -- ── hogar_config (cuántos comen, por hogar) ─────────────────────
 create table if not exists public.hogar_config (
   hogar_id    uuid primary key references public.hogares(id) on delete cascade,
@@ -164,6 +193,8 @@ alter table public.users                enable row level security;
 alter table public.recetas              enable row level security;
 alter table public.menu_semana          enable row level security;
 alter table public.menu_semanal         enable row level security;
+alter table public.planes_nutricionales enable row level security;
+alter table public.lista_super_items    enable row level security;
 alter table public.lista_super_cab      enable row level security;
 alter table public.lista_super          enable row level security;
 alter table public.items_mensuales_fijos enable row level security;

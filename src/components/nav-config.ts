@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   CheckSquare,
   Shield,
+  ClipboardList,
   type LucideIcon,
 } from "lucide-react";
 
@@ -52,6 +53,12 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Súper",
     icon: ShoppingCart,
     roles: ["admin", "familia", "ayudante"],
+  },
+  {
+    href: "/plan",
+    label: "Plan",
+    icon: ClipboardList,
+    roles: ["admin", "familia"],
   },
   {
     href: "/admin",

@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Sun,
   Sparkles,
+  Camera,
 } from "lucide-react";
 import type { EstadoMenu } from "@/types/database";
 import type { AdminDashboardData } from "./data";
@@ -80,6 +81,27 @@ export function AdminDashboard({ data }: { data: AdminDashboardData }) {
         <h1 className="mt-1 font-serif text-4xl font-medium text-tinta sm:text-5xl">
           {data.saludo}, {data.nombre}
         </h1>
+      </Seccion>
+
+      {/* CTA · Subir foto del plan nutricional */}
+      <Seccion delay={35}>
+        <Link
+          href="/plan"
+          className="flex items-center gap-4 rounded-xl2 bg-terracota px-5 py-4 text-blanco shadow-carta transition-transform hover:-translate-y-0.5"
+        >
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-blanco/20">
+            <Camera className="h-6 w-6" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-serif text-lg leading-tight">
+              Subir foto del plan
+            </span>
+            <span className="block text-sm text-blanco/80">
+              Claude arma el menú, recetas y súper
+            </span>
+          </span>
+          <ChevronRight className="h-5 w-5 shrink-0 text-blanco/80" />
+        </Link>
       </Seccion>
 
       {/* 2 · Menú de hoy */}
