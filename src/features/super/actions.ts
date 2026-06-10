@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole, requireHogar } from "@/lib/auth";
 import { getHogar } from "@/lib/hogar";
 import { getRecetas } from "@/features/recetas/queries";
+import { generarReceta } from "@/features/recetas/ai";
 import { escalarCantidad, combinarCantidades } from "@/lib/cantidades";
 import { categorizarIngrediente } from "./categorizar";
 import {
@@ -143,6 +144,38 @@ export async function generarSemanal(periodo: string): Promise<SuperResult> {
   ]);
 
   const porId = new Map<string, RecetaRow>(recetas.map((r) => [r.id, r]));
+
+  // Completar con IA las recetas del menú que están solo con el nombre,
+  // así la lista del súper sí puede armarse.
+  const idsMenu = Array.from(
+    new Set((slots ?? []).map((s) => s.receta_id as string).filter(Boolean))
+  );
+  for (const id of idsMenu) {
+    const r = porId.get(id);
+    if (!r || (r.ingredientes && r.ingredientes.length > 0)) continue;
+    try {
+      const gen = await generarReceta(r.nombre, r.categoria);
+      if (gen.ingredientes.length > 0) {
+        await supabaseAdmin
+          .from("recetas")
+          .update({
+            ingredientes: gen.ingredientes,
+            instrucciones: gen.preparacion,
+            porciones: gen.porciones,
+            tiempo_min: gen.tiempo_min,
+          })
+          .eq("id", id)
+          .eq("hogar_id", user.hogar_id);
+        porId.set(id, {
+          ...r,
+          ingredientes: gen.ingredientes,
+          porciones: gen.porciones,
+        });
+      }
+    } catch {
+      // Si una receta falla, seguimos con las demás.
+    }
+  }
 
   // Acumular ingredientes escalados por receta y agrupados por nombre.
   const acc = new Map<

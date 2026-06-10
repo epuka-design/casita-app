@@ -5,6 +5,7 @@ import { requireHogar } from "@/lib/auth";
 import { getHogar } from "@/lib/hogar";
 import { getReceta } from "@/features/recetas/queries";
 import { DeleteRecetaButton } from "@/features/recetas/DeleteRecetaButton";
+import { CompletarRecetaButton } from "@/features/recetas/CompletarRecetaButton";
 
 export default async function RecetaDetallePage({
   params,
@@ -108,9 +109,15 @@ export default async function RecetaDetallePage({
         pasos.length === 0 &&
         !receta.adaptacion_ninos && (
           <div className="carta mb-6 text-tinta/50">
-            Esta receta todavía no tiene el detalle cargado.
+            {esAdmin
+              ? "Esta receta está solo con el nombre. Completala con IA 👇"
+              : "Esta receta todavía no tiene el detalle cargado."}
           </div>
         )}
+
+      {esAdmin && receta.ingredientes.length === 0 && (
+        <CompletarRecetaButton id={receta.id} />
+      )}
 
       {esAdmin && <DeleteRecetaButton id={receta.id} />}
     </article>
