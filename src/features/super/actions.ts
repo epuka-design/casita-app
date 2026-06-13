@@ -5,9 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole, requireHogar } from "@/lib/auth";
 import { getHogar } from "@/lib/hogar";
 import { getRecetas } from "@/features/recetas/queries";
-import { generarReceta } from "@/features/recetas/ai";
-import { escalarCantidad, combinarCantidades } from "@/lib/cantidades";
-import { categorizarIngrediente } from "./categorizar";
+import { armarSuperSemanal } from "./ai";
 import {
   CATEGORIAS_SUPER_SEMANAL,
   CATEGORIAS_SUPER_MENSUAL,
@@ -136,7 +134,7 @@ export async function generarSemanal(periodo: string): Promise<SuperResult> {
   const [{ data: slots }, recetas, hogar] = await Promise.all([
     supabaseAdmin
       .from("menu_semanal")
-      .select("receta_id")
+      .select("dia, tipo, receta_id")
       .eq("hogar_id", user.hogar_id)
       .eq("semana", periodo),
     getRecetas(user.hogar_id),
@@ -144,59 +142,38 @@ export async function generarSemanal(periodo: string): Promise<SuperResult> {
   ]);
 
   const porId = new Map<string, RecetaRow>(recetas.map((r) => [r.id, r]));
-
-  // Completar con IA las recetas del menú que están solo con el nombre,
-  // así la lista del súper sí puede armarse.
-  const idsMenu = Array.from(
-    new Set((slots ?? []).map((s) => s.receta_id as string).filter(Boolean))
-  );
-  for (const id of idsMenu) {
-    const r = porId.get(id);
-    if (!r || (r.ingredientes && r.ingredientes.length > 0)) continue;
-    try {
-      const gen = await generarReceta(r.nombre, r.categoria);
-      if (gen.ingredientes.length > 0) {
-        await supabaseAdmin
-          .from("recetas")
-          .update({
-            ingredientes: gen.ingredientes,
-            instrucciones: gen.preparacion,
-            porciones: gen.porciones,
-            tiempo_min: gen.tiempo_min,
-          })
-          .eq("id", id)
-          .eq("hogar_id", user.hogar_id);
-        porId.set(id, {
-          ...r,
-          ingredientes: gen.ingredientes,
-          porciones: gen.porciones,
-        });
-      }
-    } catch {
-      // Si una receta falla, seguimos con las demás.
-    }
+  const platos = (slots ?? []).flatMap((s) => {
+    const r = s.receta_id ? porId.get(s.receta_id as string) : undefined;
+    if (!r) return [];
+    return [
+      {
+        dia: s.dia as string,
+        tipo: s.tipo as string,
+        nombre: r.nombre,
+        porciones: r.porciones > 0 ? r.porciones : 1,
+        ingredientes: r.ingredientes ?? [],
+      },
+    ];
+  });
+  if (platos.length === 0) {
+    return {
+      ok: false,
+      error: "El menú de la semana todavía no tiene platos asignados.",
+    };
   }
 
-  // Acumular ingredientes escalados por receta y agrupados por nombre.
-  const acc = new Map<
-    string,
-    { nombre: string; categoria: string; cantidades: string[] }
-  >();
-  for (const s of slots ?? []) {
-    const r = s.receta_id ? porId.get(s.receta_id as string) : undefined;
-    if (!r) continue;
-    const factor = r.porciones > 0 ? hogar.objetivo / r.porciones : 1;
-    for (const ing of r.ingredientes ?? []) {
-      const nombre = (ing.nombre ?? "").trim();
-      if (!nombre) continue;
-      const key = nombre.toLowerCase();
-      const escal = escalarCantidad(ing.cantidad, factor);
-      const cur =
-        acc.get(key) ??
-        { nombre, categoria: categorizarIngrediente(nombre), cantidades: [] };
-      if (escal) cur.cantidades.push(escal);
-      acc.set(key, cur);
-    }
+  // Claude arma la lista completa (escala, suma, infiere e ingredientes
+  // de los platos solo-nombre, agrupa por categoría).
+  let lista;
+  try {
+    lista = await armarSuperSemanal({
+      platos,
+      objetivo: hogar.objetivo,
+      adultos: hogar.adultos,
+      ninos: hogar.ninos,
+    });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Error de la IA" };
   }
 
   await asegurarCab(user.hogar_id, "semanal", periodo, user.id);
@@ -207,15 +184,15 @@ export async function generarSemanal(periodo: string): Promise<SuperResult> {
     .eq("tipo", "semanal")
     .eq("periodo", periodo);
 
-  const rows = Array.from(acc.values()).map((v) => ({
+  const rows = lista.map((it) => ({
     hogar_id: user.hogar_id,
     tipo: "semanal",
     periodo,
-    categoria: v.categoria,
-    item: v.nombre,
-    cantidad: combinarCantidades(v.cantidades) || null,
+    categoria: it.categoria,
+    item: it.nombre,
+    cantidad: [it.cantidad_total, it.unidad].filter(Boolean).join(" ") || null,
     tildado: false,
-    orden: ordenCategoria("semanal", v.categoria),
+    orden: ordenCategoria("semanal", it.categoria),
   }));
   if (rows.length > 0) {
     const { error } = await supabaseAdmin.from("lista_super").insert(rows);
