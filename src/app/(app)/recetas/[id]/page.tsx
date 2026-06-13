@@ -7,6 +7,9 @@ import { getReceta } from "@/features/recetas/queries";
 import { DeleteRecetaButton } from "@/features/recetas/DeleteRecetaButton";
 import { CompletarRecetaButton } from "@/features/recetas/CompletarRecetaButton";
 
+// "Completar con IA" llama a Claude → subimos el límite de tiempo.
+export const maxDuration = 60;
+
 export default async function RecetaDetallePage({
   params,
 }: {

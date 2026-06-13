@@ -4,6 +4,10 @@ import { getPlanActual } from "@/features/plan/queries";
 import { PlanUploader } from "@/features/plan/PlanUploader";
 import { PlanListaSuper } from "@/features/plan/PlanListaSuper";
 
+// La lectura del plan hace 2 llamadas a Claude; subimos el límite de
+// tiempo de la función (el default de Vercel Hobby es 10s).
+export const maxDuration = 60;
+
 export default async function PlanPage() {
   const user = await requireHogar();
   const esAdmin = user.rol === "admin";

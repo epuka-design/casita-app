@@ -6,6 +6,9 @@ import { inicioSemana } from "@/features/menu/logic";
 import { recordatorioSuper, inicioMes, mesLabel } from "@/features/super/dias";
 import { SuperApp } from "@/features/super/SuperApp";
 
+// Generar el súper puede completar varias recetas con IA → más tiempo.
+export const maxDuration = 60;
+
 export default async function SuperPage() {
   const user = await requireHogar();
   const semana = inicioSemana();

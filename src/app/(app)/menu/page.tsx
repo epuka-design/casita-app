@@ -7,6 +7,9 @@ import { MenuView, type DiaView } from "@/features/menu/MenuView";
 import { MenuBuilder } from "@/features/menu/MenuBuilder";
 import type { RecetaRow } from "@/types/database";
 
+// "Sugerí menú" llama a la IA → subimos el límite de tiempo.
+export const maxDuration = 60;
+
 export default async function MenuPage() {
   const user = await requireHogar();
   const semana = inicioSemana();
